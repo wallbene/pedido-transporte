@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="_templateAdmin.xhtml">
+
+	<!-- <f:metadata>
+		<f:viewParam name="veiculoId" value="#{veiculoBean.veiculoId}" />
+		<f:viewAction action="#{veiculoBean.carregarVeiculoPelaId}"
+			if="#{param.veiculoId != null}" />
+	</f:metadata> -->
+
+	<ui:define name="titulo">
+		<p:outputPanel>Novo Veiculo</p:outputPanel>
+	</ui:define>
+
+	<ui:define name="conteudo">
+
+		<h:form id="veiculo">
+			<p:fieldset legend="Dados do Veiculo">
+				<h:panelGrid columns="3" cellpadding="5">
+
+					<p:outputLabel value="Marca:" for="marca" />
+					<p:inputText id="marca" value="#{veiculoBean.veiculo.marca}"
+						required="true">
+						<f:validateLength minimum="1" />
+						<f:ajax event="blur" render="messageMarca" />
+					</p:inputText>
+					<p:message for="marca" id="messageMarca" />
+
+					<p:outputLabel value="Modelo:" for="modelo" />
+					<p:inputText id="modelo" value="#{veiculoBean.veiculo.modelo}"
+						required="true">
+						<f:validateLength minimum="1" />
+						<f:ajax event="blur" render="messageModelo" />
+					</p:inputText>
+					<p:message for="modelo" id="messageModelo" />
+
+					<p:outputLabel value="Ano:" for="ano" />
+					<p:inputText id="ano" type="number"
+						value="#{veiculoBean.veiculo.ano}" required="true">
+						<f:passThroughAttribute name="min" value="1990"></f:passThroughAttribute>
+						<f:validateLength minimum="4" maximum="4" />
+						<f:ajax event="blur" render="messageAno" />
+					</p:inputText>
+					<p:message for="ano" id="messageAno" />
+
+					<p:outputLabel value="Placa:" for="placa" />
+					<p:inputMask id="placa" value="#{veiculoBean.veiculo.placa}"
+						mask="aaa-9999" />
+
+
+					<br />
+					<h:outputText value="Disponível:" />
+					<p:selectBooleanButton id="situacao"
+						value="#{veiculoBean.veiculo.situacao}" onLabel="Sim"
+						offLabel="Não" onIcon="ui-icon-check" offIcon="ui-icon-close"
+						style="width:80px">
+					</p:selectBooleanButton>
+					<p:message for="situacao" id="messages" />
+
+					<p:outputLabel value="Tipo de Veículo:" for="tipoVeiculo" />
+					<h:selectOneMenu id="tipoVeiculo"
+						value="#{veiculoBean.veiculo.tipoVeiculo}">
+						<f:selectItems value="#{veiculoBean.tiposDeVeiculo}" var="tipo"
+							itemLabel="#{tipo.label}" itemValue="#{tipo}" />
+					</h:selectOneMenu>
+					<br />
+
+					<p:commandButton value="Gravar" action="#{veiculoBean.gravar}"
+						process="@form" update="@form :formTabelaVeiculos" />
+
+				</h:panelGrid>
+			</p:fieldset>
+		</h:form>
+
+		<h:form id="formTabelaVeiculos">
+
+			<p:dataTable value="#{veiculoBean.veiculos}" var="veiculo"
+				paginator="true" rows="10" emptyMessage="Nenhum veículo"
+				reflow="true">
+
+				<f:facet name="header">Veículos cadatrados</f:facet>
+				<p:column headerText="Marca" sortBy="#{veiculo.marca}">
+					<h:outputText value="#{veiculo.marca}" />
+				</p:column>
+
+				<p:column headerText="Modelo" sortBy="#{veiculo.modelo}"
+					filterBy="#{veiculo.modelo}" filterMatchMode="startsWith">
+					<h:outputText value="#{veiculo.modelo}" />
+				</p:column>
+
+				<p:column headerText="Ano" sortBy="#{veiculo.ano}">
+					<h:outputText value="#{veiculo.ano}" />
+				</p:column>
+
+				<p:column headerText="Placa" filterBy="#{veiculo.placa}"
+					filterMatchMode="startsWith">
+					<h:outputText value="#{veiculo.placa}" />
+				</p:column>
+
+				<p:column headerText="Tipo" sortBy="#{veiculo.tipo}">
+					<h:outputText value="#{veiculo.tipoVeiculo.label}" />
+				</p:column>
+
+				<p:column headerText="Situação" sortBy="#{veiculo.situacao}">
+					<h:outputText value="#{veiculo.situacao}" />
+				</p:column>
+
+				<p:column headerText="Alterar">
+					<p:commandButton icon="fa fa-fw fa-edit" process="@this"
+						update=":veiculo">
+						<f:setPropertyActionListener value="#{veiculo}"
+							target="#{veiculoBean.veiculo}" />
+					</p:commandButton>
+				</p:column>
+				<p:column headerText="Excluir">
+
+				<p:commandButton icon="fa fa-fw fa-remove"
+					actionListener="#{veiculoBean.remover(veiculo)}" process="@this"
+					update="@form">
+					<p:confirm header="Confirmação"
+						message="Deseja remover este cadastro de veículo?"
+						icon="ui-icon-alert" />
+				</p:commandButton>
+				</p:column>
+		     
+		    </p:dataTable>
+				<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+					<p:commandButton value="Sim" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="Não" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>
+
+</html>

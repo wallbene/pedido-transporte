@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="_templateAdmin.xhtml">
+
+<!-- Menu de pedidos -->
+	<ui:define name="menuPedido">
+		<p:layoutUnit id="menu" position="west" size="200" header="Listar Pedidos"
+			resizable="true" collapsible="true" rendered="#{adminLogado != null}">
+			<h:form style="width: 151px">
+				<p:slideMenu style="width:200px">
+					<p:menuitem value="Novos" icon="ui-icon-document"
+						action="#{pedidoBean.carregarPedidosAutorizacaoPendentes}"
+						process="@this" update="formTabelaPedidos" />
+						<p:menuitem value="Autorizados" icon="ui-icon-check"
+						action="#{pedidoBean.carregarPedidosAutorizados}"
+						process="@this" update="formTabelaPedidos" />
+					<p:menuitem value="Negados"
+						action="#{pedidoBean.carregarPedidosNegados}"
+						icon="ui-icon-notice" process="@this"
+						update="formTabelaPedidos" />
+					<p:menuitem value="Cancelados"
+						action="#{pedidoBean.carregarPedidosCancelados}"
+						icon=" ui-icon-cancel" process="@this"
+						update="formTabelaPedidos" />
+					<p:menuitem value="Atendidos"
+						action="#{pedidoBean.carregarPedidosAtendidos}"
+						icon=" ui-icon-circle-check" process="@this" update="formTabelaPedidos" />
+					<p:menuitem value="Todos"
+						action="#{pedidoBean.carregarTodosPedidos}"
+						icon="ui-icon-gear" process="@this" update="formTabelaPedidos" />
+				</p:slideMenu>
+			</h:form>
+		</p:layoutUnit>
+	</ui:define>
+<!-- 	fim Menu de Pedidos -->
+
+
+<!-- conteúdo principal -->
+	<ui:define name="conteudo">
+		<h:form id="formTabelaPedidos">
+			<p:dataTable value="#{pedidoBean.pedidos}" var="pedido"
+				id="tabelaPedidos" paginator="true" rows="10"
+				emptyMessage="Nenhum pedido" reflow="true">
+				<f:facet name="header">Últimos Pedidos</f:facet>
+				<p:column headerText="Número do pedido"
+					sortBy="#{pedido.numeroPedido}" filterBy="#{pedido.numeroPedido}"
+					filterMatchMode="startsWith">
+					<h:outputText value="#{pedido.numeroPedido}" />
+				</p:column>
+				<p:column headerText="Usuário"
+					sortBy="#{pedido.usuario.nome}" filterBy="#{pedido.usuario.nome}"
+					filterMatchMode="startsWith">
+					<h:outputText value="#{pedido.usuario.nome}" />
+				</p:column>
+				<p:column headerText="Data de saída"
+					sortBy="#{pedido.dataInicial.time}">
+					<h:outputText value="#{pedido.dataInicial.time}">
+						<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+							timeZone="America/Sao_Paulo" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Data de retorno"
+					sortBy="#{pedido.dataFinal.time}">
+					<h:outputText value="#{pedido.dataFinal.time}">
+						<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+							timeZone="America/Sao_Paulo" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Tipo de Transporte"
+					sortBy="#{pedido.tipoTransporte.label}">
+					<h:outputText value="#{pedido.tipoTransporte.label}" />
+				</p:column>
+				<p:column headerText="Status do pedido"
+					sortBy="#{pedido.status.nome}">
+					<h:outputText value="#{pedido.status.nome}" />
+				</p:column>
+
+				<!-- esse componente só pode ser exibido para pedidos que tenham status "aguardando autorização" -->
+				<p:column headerText="Opções">
+					<p:commandButton
+						rendered="#{pedido.status.nome =='Aguardando autorização'}"
+						id="ButtonOpcoesAutorizar" value="Opções" type="button" icon="ui-icon-plus" />
+					<p:menu overlay="true" trigger="ButtonOpcoesAutorizar" my="left top"
+						at="left bottom">
+
+						<p:menuitem value="Exibir" action="#{pedidoBean.carregar(pedido)}"
+							icon="fa fa-fw fa-eye" oncomplete="PF('dlgExibirPedido').show()"
+							title="View" update=":formTabelaPedidos:pedidoDetalhe" />
+
+						<p:menuitem value="Efetuar autorização"
+							action="#{pedidoBean.carregar(pedido)}" icon="fa fa-fw fa-check-square-o"
+							oncomplete="PF('dlgAutorizarPedido').show()" title="Autorizar"
+							update=":formTabelaPedidos:pedidoAutorizar" />
+
+						<p:menuitem value="Não autorização"
+							action="#{pedidoBean.carregar(pedido)}" icon="fa fa-fw fa-remove"
+							oncomplete="PF('dlgCancelarPedido').show();" title="Não Autorizar"
+							update=":formTabelaPedidos:justificativa" />
+							
+					</p:menu>
+					
+					<!-- esse componente só pode ser exibido para pedidos que tenham status diferente de "aguardando autorização" -->
+					
+					<p:commandButton
+						rendered="#{pedido.status.nome =='Autorizado'}"
+						id="ButtonOpcoesAutorizado" value="Opções" type="button" icon="ui-icon-plus" />
+					<p:menu overlay="true" trigger="ButtonOpcoesAutorizado" my="left top"
+						at="left bottom">
+
+						<p:menuitem value="Exibir" action="#{pedidoBean.carregar(pedido)}"
+							icon="fa fa-fw fa-eye" oncomplete="PF('dlgExibirPedido').show()"
+							title="View" update=":formTabelaPedidos:pedidoDetalhe" />
+
+						<p:menuitem rendered="#{pedido.status.nome == 'Autorizado'}"
+						value="Declarar Atendimento" action="#{pedidoBean.declararStatusAtendido(pedido)}"
+						icon="fa fa-fw fa-check-square-o" 
+						title="Declarar Atendido" process="@this" update="tabelaPedidos">
+						<p:confirm header="Declarar teste pedido como atendido"
+							message="Essa Ação não poderar ser desfeita, deseja continuar?"
+							icon="ui-icon-alert" />
+						</p:menuitem>
+							
+					</p:menu>
+						<!-- esse componente só pode ser exibido para pedidos que tenham status diferente das anteriores -->
+					<p:commandButton
+						rendered="#{pedido.status.nome != 'Aguardando autorização' and pedido.status.nome != 'Autorizado'}"
+						value="Exibir" action="#{pedidoBean.carregar(pedido)}"
+						icon="fa fa-fw fa-eye" oncomplete="PF('dlgExibirPedido').show()"
+						title="View" update=":formTabelaPedidos:pedidoDetalhe" />
+
+				</p:column>
+			</p:dataTable>
+			
+			<!-- Dialogo de confirmação de declaração de atendimento -->
+			<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+				<p:commandButton value="Sim" type="button"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+				<p:commandButton value="Não" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+			</p:confirmDialog>
+			
+			<!-- Dialogo de Exibição que é renderizado ao acionar o botão Exibir Pedido -->
+			<p:dialog header="Pedido" widgetVar="dlgExibirPedido" modal="true"
+				showEffect="fade" hideEffect="fade" resizable="false"
+				appendTo="@(body)">
+				<p:outputPanel id="pedidoDetalhe">
+					<p:panelGrid columns="2" rendered="#{not empty pedidoBean.pedido}"
+						columnClasses="label,value">
+						<f:facet name="header">
+							<h:outputText value="#{pedidoBean.pedido.usuario.nome}" />
+						</f:facet>
+						
+						<h:outputText value="Pedido nº:" />
+						<h:outputText value="#{pedidoBean.pedido.numeroPedido}" />
+						
+						<h:outputText value="Data/hora do Pedido:" />
+						<h:outputText value="#{pedidoBean.pedido.dataPedido.time}">
+							<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+								timeZone="America/Sao_Paulo" />
+						</h:outputText>
+
+						<h:outputText value="Data/hora de saída:" />
+						<h:outputText value="#{pedidoBean.pedido.dataInicial.time}">
+							<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+								timeZone="America/Sao_Paulo" />
+						</h:outputText>
+
+						<h:outputText value="Data/hora de retorno:" />
+						<h:outputText value="#{pedidoBean.pedido.dataFinal.time}">
+							<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+								timeZone="America/Sao_Paulo" />
+						</h:outputText>
+
+						<h:outputText value="Observação do pedido:" />
+						<h:outputText value="#{pedidoBean.pedido.observacao}" />
+
+						<h:outputText value="Tipo de Transporte:" />
+						<h:outputText value="#{pedidoBean.pedido.tipoTransporte}" />
+
+						<h:outputText value="Número de passageiros:" />
+						<h:outputText value="#{pedidoBean.pedido.qtdPassageiros}" />
+						
+						<h:outputText value="Situação:" />
+						<h:outputText value="#{pedidoBean.pedido.status.nome}" />
+						</p:panelGrid>
+						
+						<p:dataList value="#{pedidoBean.pedido.destinos}" var="destino"
+							type="ordered">
+							<f:facet name="header">
+					            Destinos
+					        </f:facet>
+					        #{destino.logradouro}, #{destino.complemento}, #{destino.cidade}, #{destino.uf}, #{destino.descricao}
+					    </p:dataList>
+
+						<p:dataList value="#{pedidoBean.pedido.veiculos}" var="veiculo"
+							type="ordered"
+							rendered="#{not empty pedidoBean.pedido.veiculos}">
+							<f:facet name="header">
+					            Veículos
+					        </f:facet>
+					        #{veiculo.marca}, #{veiculo.modelo}, #{veiculo.tipoVeiculo}
+					    </p:dataList>
+
+						<p:dataList value="#{pedidoBean.pedido.motoristas}"
+							var="motorista" type="ordered"
+							rendered="#{not empty pedidoBean.pedido.motoristas}">
+							<f:facet name="header">
+					            Motoristas
+					        </f:facet>
+					        #{motorista.nome}, #{motorista.telefone}
+					    </p:dataList>
+					    <p:separator/>
+					    <p:panel  id="justificaIndeferimento" rendered="#{not empty pedidoBean.pedido.justificaIndeferimento}" 
+							header="Justificativa de indererimento"
+							style="margin-bottom:20px">
+							<h:outputText value="#{pedidoBean.pedido.justificaIndeferimento}" />
+						</p:panel>
+						
+						<p:panel  id="justificaCancelamento" rendered="#{not empty pedidoBean.pedido.justificaCancelamento}" 
+							header="Justificativa de Cancelamento"
+							style="margin-bottom:20px">
+							<h:outputText value="#{pedidoBean.pedido.justificaCancelamento}" />
+						</p:panel>
+					    
+				</p:outputPanel>
+			</p:dialog> <!-- fim DialogoExibição -->
+			
+			<!-- Dialogo de Autorização que é renderizado quando o botão autorizar pedido é acionado -->
+			<p:dialog header="Procedimentos para Autorização" id="pedidoAutorizar"
+				widgetVar="dlgAutorizarPedido" modal="true" showEffect="fade"
+				hideEffect="fade" appendTo="@(body)">
+
+				<p:fieldset legend="Dados do Veículo">
+					<p:panelGrid columns="4">
+
+						<p:outputLabel value="Selecione Veículo:" for="selectVeiculo" />
+
+						<p:selectOneMenu value="#{pedidoBean.veiculoId}"
+							id="selectVeiculo">
+							<f:selectItems value="#{pedidoBean.veiculosDisponiveis}" var="veiculo"
+								itemLabel="#{veiculo.tipoVeiculo.label} - #{veiculo.modelo} - #{veiculo.placa}"
+								itemValue="#{veiculo.id}" />
+						</p:selectOneMenu> 
+
+						<p:commandButton value="Adicionar Veículo"
+							action="#{pedidoBean.adicionarVeiculo}"
+							process="@this selectVeiculo" update="tabelaVeiculos"
+							partialSubmit="true" />
+					</p:panelGrid>
+
+					<p:dataList type="ordered" value="#{pedidoBean.veiculosDoPedido}" var="veiculo"
+						id="tabelaVeiculos" emptyMessage="Nenhum veículo">
+						<f:facet name="header">Veiculos</f:facet>
+						
+							#{veiculo.tipoVeiculo.label}, #{veiculo.marca}, #{veiculo.modelo}, #{veiculo.ano}, #{veiculo.placa}
+							<p:commandButton icon="ui-icon-trash"
+								action="#{pedidoBean.removerVeiculo(veiculo)}"
+								update="tabelaVeiculos" process="@this" />
+					</p:dataList>
+				</p:fieldset>
+
+				<p:fieldset legend="Dados do motorista">
+					<p:panelGrid columns="4">
+
+						<p:outputLabel value="Selecione Motorista:" for="Selectmotorista" />
+
+						<p:selectOneMenu value="#{pedidoBean.motoristaId}"
+							id="Selectmotorista">
+							<f:selectItems value="#{pedidoBean.motoristas}" var="motorista"
+								itemLabel="#{motorista.nome} - #{motorista.categoria} " itemValue="#{motorista.id}" />
+						</p:selectOneMenu>
+
+						<p:commandButton value="Adicionar Motorista"
+							action="#{pedidoBean.adicionarMotorista}"
+							process="@this Selectmotorista" update="tabelaMotoristas"
+							partialSubmit="true" />
+					</p:panelGrid>
+
+					<p:dataList type="ordered" value="#{pedidoBean.motoristasDoPedido}"
+						var="motorista" id="tabelaMotoristas" emptyMessage="Nenhum motorista">
+							#{motorista.nome}, #{motorista.categoria}
+						
+							<p:commandButton icon="ui-icon-trash"
+								action="#{pedidoBean.removerMotorista(motorista)}"
+								update="tabelaMotoristas" process="@this" />
+						
+					</p:dataList>
+				</p:fieldset>
+
+				<br />
+				<br />
+				<p:commandButton process="@this" value="Cancelar"
+					action="#{pedidoBean.novoPedido}"
+					onclick="PF('dlgAutorizarPedido').hide();"
+					icon="fa fa-fw fa-undo" />
+
+				<p:commandButton value="Confirmar autorização"
+					actionListener="#{pedidoBean.autorizarPedido}" update="@form tabelaPedidos"
+					process="@this" icon="fa fa-fw fa-check" />
+					
+			</p:dialog><!-- fim DialogDe Autorização -->
+			
+			
+			
+			<!-- Dialogo de Indeferimento que aciona com o butão Nao autorizar -->
+			<p:dialog header="Justificativa de Indeferimento"
+				widgetVar="dlgCancelarPedido" modal="true" showEffect="fade"
+				hideEffect="fade" appendTo="@(body)">
+				<p:inputTextarea id="justificativa"
+					placeholder="Descreva de maneira objetiva a sua justificativa"
+					rows="15" cols="50" counter="display" maxlength="750"
+					counterTemplate="{0} caracteres restantes."
+					value="#{pedidoBean.pedido.justificaIndeferimento}" />
+			
+				<br />
+				<br />
+				<h:outputText id="display" />
+				<p:commandButton process="@this" value="Cancelar"
+					action="#{pedidoBean.novoPedido}"
+					onclick="PF('dlgCancelarPedido').hide();" icon="fa fa-fw fa-cancel" />
+				<p:commandButton partialSubmit="true"
+					process="@this justificativa" value="Enviar" update="@form"
+					actionListener="#{pedidoBean.naoAutorizarPedido}"
+					icon="fa fa-fw fa-remove" />
+
+			</p:dialog> <!-- fim Dialogo de Indeferimento -->
+		</h:form>
+	</ui:define>
+	<!-- fim conteúdo principal -->
+
+</ui:composition>
+
+</html>

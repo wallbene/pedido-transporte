@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="_templateAdmin.xhtml">
+
+	<!-- <f:metadata>
+		<f:viewParam name="motoristaId" value="#{motoristaBean.motoristaId}" />
+		<f:viewAction action="#{motoristaBean.carregarMotoristaPelaId}"
+			if="#{param.motoristaId != null}" />
+	</f:metadata> -->
+
+	<ui:define name="titulo">
+		<p:outputPanel>Novo Motorista</p:outputPanel>
+	</ui:define>
+
+	<ui:define name="conteudo">
+
+		<h:form id="motorista">
+			<p:fieldset legend="Dados do Motorista">
+				<h:panelGrid columns="3" cellpadding="5">
+
+					<p:outputLabel value="Nome:" for="nome" />
+					<p:inputText id="nome" value="#{motoristaBean.motorista.nome}"
+						required="true">
+						<f:validateLength minimum="5" />
+						<f:ajax event="blur" render="messageNome" />
+					</p:inputText>
+					<p:message for="nome" id="messageNome" />
+
+					<p:outputLabel value="Email:" for="email" />
+					<p:inputText id="email" value="#{motoristaBean.motorista.email}"
+						placeholder="fulano@email.com" type="email" required="true"
+						validatorMessage="Email inválido">
+						<f:validateRegex
+							pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+						<f:ajax event="blur" render="messageEmail" />
+					</p:inputText>
+					<p:message for="email" id="messageEmail" />
+
+
+					<p:outputLabel value="CPF:" for="cpf" />
+					<p:inputMask id="cpf" value="#{motoristaBean.motorista.cpf}"
+						mask="999.999.999-99">
+						<f:ajax event="blur" render="messageCpf" />
+					</p:inputMask>
+					<p:message for="cpf" id="messageCpf" />
+
+					<p:outputLabel value="CNH:" for="cnh" />
+					<p:inputText id="cnh" value="#{motoristaBean.motorista.cnh}"
+						required="true">
+						<f:validateLength minimum="5" />
+						<f:ajax event="blur" render="messageCnh" />
+					</p:inputText>
+					<p:message for="cnh" id="messageCnh" />
+					
+					<p:outputLabel value="Categoria:" for="cat" />
+					<h:selectOneMenu id="cat"
+						value="#{motoristaBean.motorista.categoria}">
+						<f:selectItems value="#{motoristaBean.categoriasCnh}" var="categoria"
+							itemLabel="#{categoria}" itemValue="#{categoria}" />
+					</h:selectOneMenu>
+					<br/>
+					
+					<p:outputLabel value="Validade:" for="validade" />
+					<p:calendar id="validade"
+						value="#{motoristaBean.motorista.validade.time}"
+						timeZone="America/Sao_Paulo" pattern="dd/MM/yyyy" mask="true"
+						showOn="button" />
+						<br/>
+					
+
+					<p:outputLabel value="Data de Nascimento:" for="dataNascimento" />
+					<p:calendar id="dataNascimento"
+						value="#{motoristaBean.motorista.dataNascimento.time}"
+						timeZone="America/Sao_Paulo" pattern="dd/MM/yyyy" mask="true"
+						showOn="button" />
+
+					<br />
+					<p:outputLabel value="Telefone:" for="telefone" />
+					<p:inputMask id="telefone"
+						value="#{motoristaBean.motorista.telefone}" mask="(99)99999-9999">
+						<f:passThroughAttribute name="type" value="tel" />
+					</p:inputMask>
+					<p:message for="telefone" id="messageTelefone" />
+					<p:commandButton value="Gravar" action="#{motoristaBean.gravar}"
+						process="@form" update="@form :formTabelaMotoristas" />
+
+				</h:panelGrid>
+			</p:fieldset>
+		</h:form>
+
+		<h:form id="formTabelaMotoristas">
+
+			<p:dataTable value="#{motoristaBean.motoristas}" var="motorista"
+				paginator="true" rows="10" emptyMessage="Nenhum Motorista"
+				reflow="true">
+
+				<f:facet name="header">Motoristas cadastrados</f:facet>
+				<p:column headerText="Nome" sortBy="#{motorista.nome}"
+					filterBy="#{motorista.nome}" filterMatchMode="startsWith">
+					<h:outputText value="#{motorista.nome}" />
+				</p:column>
+
+				<p:column headerText="Email">
+					<h:outputText value="#{motorista.email}" />
+				</p:column>
+
+				<p:column headerText="CPF">
+					<h:outputText value="#{motorista.cpf}" />
+				</p:column>
+
+				<p:column headerText="CNH/Cat/Val">
+					<h:outputText value="#{motorista.cnh}" /><br/>
+					<h:outputText value="#{motorista.categoria}" /><br/>
+					<h:outputText value="#{motorista.validade.time}">
+						<f:convertDateTime pattern="dd/MM/yyyy"
+							timeZone="America/Sao_Paulo" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Telefone">
+					<h:outputText value="#{motorista.telefone}" />
+				</p:column>
+
+				<p:column headerText="Data de nascimento">
+					<h:outputText value="#{motorista.dataNascimento.time}">
+						<f:convertDateTime pattern="dd/MM/yyyy"
+							timeZone="America/Sao_Paulo" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Alterar">
+					<p:commandButton icon="fa fa-fw fa-edit" process="@this"
+						update=":motorista">
+						<f:setPropertyActionListener value="#{motorista}"
+							target="#{motoristaBean.motorista}" />
+					</p:commandButton>
+				</p:column>
+
+				<p:column headerText="Excluir">
+					<p:commandButton icon="fa fa-fw fa-remove"
+						actionListener="#{motoristaBean.remover(motorista)}"
+						process="@this" update="@form">
+						<p:confirm header="Confirmação"
+							message="Deseja remover este cadastro de motorista?"
+							icon="ui-icon-alert" />
+					</p:commandButton>
+				</p:column>
+
+			</p:dataTable>
+
+			<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+				<p:commandButton value="Sim" type="button"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+				<p:commandButton value="Não" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>
+
+</html>

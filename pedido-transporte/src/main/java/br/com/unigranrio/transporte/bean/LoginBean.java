@@ -8,36 +8,49 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Controller;
 
+import br.com.unigranrio.transporte.dao.AdministradorDao;
 import br.com.unigranrio.transporte.dao.UsuarioDao;
+import br.com.unigranrio.transporte.modelo.Administrador;
 import br.com.unigranrio.transporte.modelo.Usuario;
 
 @Controller
 public class LoginBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	private Usuario usuario = new Usuario();
+	
+	private String email;
+	private String senha;
+	
 
 	@Inject
-	UsuarioDao dao;
-
-	public Usuario getUsuario() {
-		return usuario;
-	}
+	UsuarioDao usuarioDao;
+	
+	@Inject
+	AdministradorDao admDao;
+	
 
 	public String efetuaLogin() {
-		System.out.println("fazendo login do usuario "
-				+ this.usuario.getEmail());
+		
+		/*System.out.println("fazendo login do usuario "
+				+ this.usuario.getEmail());*/
 
 		FacesContext context = FacesContext.getCurrentInstance();
 
-		boolean existe = dao.existe(this.usuario);
-		if (existe) {
+		Usuario usuario = usuarioDao.existe(this.email, this.senha);
+		if (usuario != null) {
+			
 			context.getExternalContext().getSessionMap()
-					.put("usuarioLogado", this.usuario);
-			return "livro?faces-redirect=true";
+					.put("usuarioLogado", usuario);
+			return "homeUsuario?faces-redirect=true";
 		}
-
+		Administrador adm = admDao.existe(this.email, this.senha);
+		if (adm != null) {
+			
+			context.getExternalContext().getSessionMap()
+					.put("adminLogado", adm);
+			return "homeAdmin?faces-redirect=true";
+		}
+		
 		context.getExternalContext().getFlash().setKeepMessages(true);
 		context.addMessage(null, new FacesMessage("Usuário não encontrado"));
 
@@ -48,5 +61,25 @@ public class LoginBean implements Serializable {
 		FacesContext context = FacesContext.getCurrentInstance();
 		context.getExternalContext().getSessionMap().remove("usuarioLogado");
 		return "login?faces-redirect=true";
+	}
+
+
+	public String getSenha() {
+		return senha;
+	}
+
+
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+
+
+	public String getEmail() {
+		return email;
+	}
+
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }

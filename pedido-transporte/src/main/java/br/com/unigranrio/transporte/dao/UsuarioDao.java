@@ -1,7 +1,9 @@
 package br.com.unigranrio.transporte.dao;
 
 import java.io.Serializable;
+import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -16,25 +18,54 @@ import br.com.unigranrio.transporte.modelo.Usuario;
 public class UsuarioDao implements Serializable {
 
 	@PersistenceContext
-	EntityManager manager;
+	EntityManager em;
 
-	public boolean existe(Usuario usuario) {
+	private DAO<Usuario> dao;
 
-		TypedQuery<Usuario> query = manager.createQuery(
+	@PostConstruct
+	void init() {
+		this.dao = new DAO<Usuario>(this.em, Usuario.class);
+	}
+
+	public void adiciona(Usuario t) {
+		dao.adiciona(t);
+	}
+
+	public void remove(Usuario t) {
+		dao.remove(t);
+	}
+
+	public void atualiza(Usuario t) {
+		dao.atualiza(t);
+	}
+
+	public List<Usuario> listaTodos() {
+		return dao.listaTodos();
+	}
+
+	public Usuario buscaPorId(Integer id) {
+		return dao.buscaPorId(id);
+	}
+	
+	public Usuario existe(String email, String senha) {
+
+		TypedQuery<Usuario> query = em.createQuery(
 				" select u from Usuario u "
 						+ " where u.email = :pEmail and u.senha = :pSenha",
 				Usuario.class);
 
-		query.setParameter("pEmail", usuario.getEmail());
-		query.setParameter("pSenha", usuario.getSenha());
-		try {
-			@SuppressWarnings("unused")
-			Usuario resultado = query.getSingleResult();
-		} catch (NoResultException ex) {
-			return false;
-		}
-
-		return true;
+		query.setParameter("pEmail", email);
+		query.setParameter("pSenha", senha);
+		
+			Usuario resultado;
+			try {
+				resultado = query.getSingleResult();
+				
+			} catch (NoResultException e) {
+				return null;
+			}
+			
+			return resultado;
 	}
 
 }

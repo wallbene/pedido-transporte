@@ -4,12 +4,19 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.validation.ConstraintViolationException;
+
+import com.mchange.util.DuplicateElementException;
+
+import br.com.unigranrio.transporte.util.JSFUtil;
 
 @SuppressWarnings("serial")
 public class DAO<T> implements Serializable {
 
 	private final Class<T> classe;
+	
 	private EntityManager em;
 
 	public DAO(EntityManager manager, Class<T> classe) {
@@ -23,11 +30,22 @@ public class DAO<T> implements Serializable {
 	}
 
 	public void remove(T t) {
-		em.remove(em.merge(t));
+		
+		try {
+			System.out.println("exeção no dao");
+			em.remove(t);
+			
+		} catch (Exception e) {
+			JSFUtil.retornarMensagemInfo("Erro","Motorista não pode ser Exluído!" , "messages");
+			System.out.println(e);
+		}
+			
+			
 	}
 
 	public void atualiza(T t) {
-		em.merge(t);
+			em.merge(t);
+		
 	}
 
 	public List<T> listaTodos() {

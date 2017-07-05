@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:context="http://www.springframework.org/schema/context"
+
+<b:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:b="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:tx="http://www.springframework.org/schema/tx"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
-        http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-        http://www.springframework.org/schema/mvc
-        http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-4.1.xsd
-        http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+					        http://www.springframework.org/schema/beans
+					        http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+					        http://www.springframework.org/schema/mvc
+					        http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+					        http://www.springframework.org/schema/context
+					        http://www.springframework.org/schema/context/spring-context-4.1.xsd
+					        http://www.springframework.org/schema/tx
+					        http://www.springframework.org/schema/tx/spring-tx-4.1.xsd
+					        http://www.springframework.org/schema/security
+					        http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+
 
 	<!-- For Scanning the packages net.javaonline.spring.inventory & net.javaonline.web.jsf.inventory 
 		and registering the beans with the applicationContext -->
@@ -20,13 +24,60 @@
 	<tx:annotation-driven />
 
 
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
+	<b:bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<b:property name="entityManagerFactory" ref="entityManagerFactory" />
 
-	<bean id="entityManagerFactory"
+	</b:bean>
+
+	<b:bean id="entityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="persistenceUnitName" value="transporte" />
-	</bean>
+		<b:property name="persistenceUnitName" value="transporte" />
+	</b:bean>
 
-</beans>
+	<!-- responsável por definir as configurações de segurança para as páginas 
+		da aplicação -->
+
+	<!-- O atributo auto-config com o valor “true” automatiza algumas tarefas 
+		de configuração como a autenticação HTTP básica e o logout, além disso, com 
+		o auto-config ativado um formulário padrão de login é gerado, porém, como 
+		definimos a tag <form-login> este formulário não será gerado pois foi criado 
+		por nós. O atributo use-expressions permite a utilização da linguagem de 
+		expressão SpEL para auxiliar a definir regras de acesso. Dentro da tag <http> 
+		podemos definir inteceptadores através da tag <intercept-url>. Estes interceptadores 
+		vão criar restrições para as páginas da aplicação. No nosso caso a página 
+		homeUsuario poderá ser acessada apenas por usuários com o papel ROLE_USER. 
+		O atributo login-page da tag <form-login> define a página na qual o formulário 
+		de login será descrito. Já o atributo authentication-failure-url define a 
+		página direcionada caso ocorra algum erro durante a autenticação. -->
+	<http auto-config="true" use-expressions="true">
+		<intercept-url pattern="/homeUsuario.xhtml" access="hasRole('ROLE_USER')" />
+		<form-login login-processing-url="/j_spring_security_check"
+			username-parameter="j_username" password-parameter="j_password"
+			login-page="/login.xhtml" authentication-failure-url="/login.xhtml?erro=true" />
+	</http>
+
+
+	<!-- responsável por definir provedores de autenticação que gerenciam usuários 
+		e suas autorizações na aplicação. No nosso CRUD os usuários e suas autorizações 
+		serão buscados no banco de dados (configurado através do <bean> com id “dataSource”). 
+		A tag <jdbc-user-service> descreve nos atributos users-by-username-query 
+		e authorities-by-username-query as consultas que deverão ser realizadas no 
+		banco de dados para encontrar os usuários e suas autorizações. -->
+	<authentication-manager>
+		<authentication-provider>
+			<jdbc-user-service data-source-ref="dataSource"
+
+				users-by-username-query="SELECT email, senha, enable FROM Usuario WHERE email=?"
+				authorities-by-username-query="SELECT email, autorizacao FROM Usuario	WHERE email=?" />
+		</authentication-provider>
+	</authentication-manager>
+
+	<b:bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<b:property name="url" value="jdbc:mysql://localhost:3306/transportedb" />
+		<b:property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<b:property name="username" value="root" />
+		<b:property name="password" value="marciane" />
+	</b:bean>
+
+</b:beans>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head />
+<h:body>
+
+
+	<p:layout fullPage="true">
+
+		<!-- header -->
+		<p:layoutUnit position="north" size="120"
+			header="Sistema de Pedidos de transporte"
+			rendered="#{adminLogado != null}">
+			<div id="cabecalho">
+
+				<p:growl id="messages" showDetail="true" autoUpdate="true" />
+
+				<h:form rendered="#{adminLogado != null}">
+					<p:menubar>
+						<p:menuitem value="Pedidos" action="homeAdmin?faces-redirect=true"
+							icon="fa fa-fw fa-home" />
+						<p:menuitem value="Usuarios"
+							action="#{usuarioBean.acaoAbrirUsuario}"
+							icon="fa fa-fw fa-users" />
+						<p:menuitem value="Veiculos"
+							action="#{veiculoBean.acaoAbrirVeiculo}"
+							icon="fa fa-fw- fa-automobile" />
+						<p:menuitem value="Motoristas"
+							action="#{motoristaBean.acaoAbrirMotorista}"
+							icon="fa fa-fw- fa-user" />
+						<p:menuitem value="Relatório"
+							action="relatorio?faces-redirect=true"
+							icon="fa fa-fw fa-bar-chart" immediate="true" />
+						<f:facet name="options">
+							<p:commandButton value="Logout" action="#{loginBean.deslogar}"
+								icon="fa fa-fw fa-sign-out" />
+						</f:facet>
+
+					</p:menubar>
+				</h:form>
+
+			</div>
+		</p:layoutUnit>
+		<ui:insert name="menuPedido">
+		</ui:insert>
+
+
+		<!-- main -->
+		<p:layoutUnit position="center" id="conteudo">
+			<ui:insert name="conteudo">
+			</ui:insert>
+		</p:layoutUnit>
+
+		<!-- footer -->
+		<p:layoutUnit position="south" size="50">
+			<h:outputText value="&copy; Todos os direitos reservados." />
+			<ui:insert name="rodape" />
+			<h:form rendered="#{adminLogado != null}"
+				style="position:absolute; right: 10px;">
+
+				<p:themeSwitcher id="basic" style="width:165px"
+					value="#{temaBean.tema}">
+					<f:selectItem itemLabel="Choose Theme" itemValue="" />
+					<f:selectItems value="#{temaBean.temas}" var="tema"
+						itemLabel="#{tema}" itemValue="#{tema}" />
+					<f:ajax />
+				</p:themeSwitcher>
+			</h:form>
+
+		</p:layoutUnit>
+
+	</p:layout>
+
+</h:body>
+
+</html>

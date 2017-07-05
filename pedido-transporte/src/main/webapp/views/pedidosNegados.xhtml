@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+
+<ui:composition template="#{not empty usuarioLogado ? '_templateUser.xhtml' : '_templateAdmin.xhtml'}">
+
+
+	<!-- <f:metadata>
+		<f:viewParam name="motoristaId" value="#{motoristaBean.motoristaId}" />
+		<f:viewAction action="#{motoristaBean.carregarMotoristaPelaId}"
+			if="#{param.motoristaId != null}" />
+	</f:metadata> -->
+
+	<ui:define name="titulo">
+		<p:outputPanel>Meus Pedidos</p:outputPanel>
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<h:form id="formTabelaPedidos">
+			<p:dataTable value="#{pedidoBean.pedidosNegados}" var="pedido"
+				id="tabelaPedidos" paginator="true" rows="5"
+				emptyMessage="Nenhum pedido" reflow="true">
+				<f:facet name="header">Pedidos não autorizados</f:facet>
+				<p:column headerText="Número do pedido"
+					sortBy="#{pedido.numeroPedido}" filterBy="#{pedido.numeroPedido}"
+					filterMatchMode="startsWith">
+					<h:outputText value="#{pedido.numeroPedido}" />
+				</p:column>
+				<p:column headerText="Data de saída"
+					sortBy="#{pedido.dataInicial.time}">
+					<h:outputText value="#{pedido.dataInicial.time}">
+						<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+							timeZone="America/Sao_Paulo" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Data de retorno"
+					sortBy="#{pedido.dataFinal.time}">
+					<h:outputText value="#{pedido.dataFinal.time}">
+						<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+							timeZone="America/Sao_Paulo" />
+					</h:outputText>
+				</p:column>
+				<p:column headerText="Tipo de veículo"
+					sortBy="#{pedido.tipoVeiculo.label}">
+					<h:outputText value="#{pedido.tipoVeiculo.label}" />
+				</p:column>
+				<p:column headerText="Status do pedido"
+					sortBy="#{pedido.status.nome}">
+					<h:outputText value="#{pedido.status.nome}" />
+				</p:column>
+
+				<p:column headerText="Opções">
+					<p:commandButton value="Exibir" action="#{pedidoBean.carregar(pedido)}"
+							icon="fa fa-fw fa-eye" oncomplete="PF('pedidoDialogo').show()"
+							title="Detalhes" update=":formTabelaPedidos:pedidoDetalhe"  />
+
+				</p:column>
+			</p:dataTable>
+
+			<p:dialog header="Pedido" widgetVar="pedidoDialogo" modal="true"
+				showEffect="fade" hideEffect="fade" resizable="false"
+				appendTo="@(body)">
+				<p:outputPanel id="pedidoDetalhe" style="text-align:center;">
+					<p:panelGrid columns="2" rendered="#{not empty pedidoBean.pedido}"
+						columnClasses="label,value">
+						<f:facet name="header">
+							<h:outputText value="Pedido Selecionado" />
+						</f:facet>
+
+
+						<h:outputText value="Pedido nº:" />
+						<h:outputText value="#{pedidoBean.pedido.numeroPedido}" />
+
+						<h:outputText value="Data e hora de saída" />
+						<h:outputText value="#{pedidoBean.pedido.dataInicial.time}">
+						<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+							timeZone="America/Sao_Paulo" />
+						</h:outputText>
+
+						<h:outputText value="Data e hora de retorno:" />
+						<h:outputText value="#{pedidoBean.pedido.dataFinal.time}">
+						<f:convertDateTime pattern="dd/MM/yyyy hh:mm"
+							timeZone="America/Sao_Paulo" />
+						</h:outputText>
+
+						<h:outputText value="Status:" />
+						<h:outputText value="#{pedidoBean.pedido.status.nome}" />
+
+						<h:outputText value="Observação do pedido:" />
+						<h:outputText value="#{pedidoBean.pedido.observacao}" />
+
+						<h:outputText value="Tipo de Veiculo:" />
+						<h:outputText value="#{pedidoBean.pedido.tipoVeiculo}" />
+
+						<h:outputText value="Número de passageiros" />
+						<h:outputText value="#{pedidoBean.pedido.qtdPassageiros}" />
+						
+						<h:outputText value="Justificativa" />
+						<h:outputText value="#{pedidoBean.pedido.justificaIndeferimento}" />
+
+						<p:dataList value="#{pedidoBean.destinosDoPedido}" var="destino" type="ordered">
+							<f:facet name="header">
+					            Destinos
+					        </f:facet>
+					        #{destino.logradouro}, #{destino.complemento}, #{destino.cidade}, #{destino.uf}, #{destino.descricao}
+					    </p:dataList>
+					    
+					    <p:dataList value="#{pedidoBean.pedido.veiculos}" var="veiculo" type="definition" rendered="#{not empty pedidoBean.pedido.veiculos}">
+							<f:facet name="header">
+					            Veículos
+					        </f:facet>
+					        #{veiculo.marca}, #{veiculo.modelo}, #{veiculo.tipoVeiculo}
+					    </p:dataList>
+					    
+					    <p:dataList value="#{pedidoBean.pedido.motoristas}" var="motorista" type="definition" rendered="#{not empty pedidoBean.pedido.motoristas}">
+							<f:facet name="header">
+					            Motoristas
+					        </f:facet>
+					        #{motorita.nome}, #{motorista.telefone}, #{destino.email}
+					    </p:dataList>
+
+					</p:panelGrid>
+				</p:outputPanel>
+			</p:dialog>
+
+		</h:form>
+	</ui:define>
+
+</ui:composition>
+
+</html>

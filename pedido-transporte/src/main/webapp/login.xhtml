@@ -5,37 +5,41 @@
 	xmlns:f="http://xmlns.jcp.org/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <title>Bem vindo ao Sistema de Pedidos de Transportes!</title>
+    </h:head>
 
-	<ui:composition template="_template.xhtml">
+<h:body
+	style="background-image:url('http://pwes.rocklin.k12.ca.us/j0439526.jpg');background-position: 50% 0%;background-repeat: no-repeat">
+        <p:dialog header="Login" visible="true" closable="false"
+		draggable="false" resizable="false" width="420">
+            <center>
+			                
+			<h:outputText value="Usuário ou senha incorretos!"
+				rendered="#{param.erro}" style="color: darkred" />
+			            
+		</center>
+            <form action="j_spring_security_check" method="post"
+			id="login">
+			                
+			<h:panelGrid columns="2" cellpadding="5">
+                    <h:outputLabel for="j_username" value="Email: *" />
+                    <h:inputText id="j_username" required="true">
+						<f:passThroughAttribute name="type" value="email" />
+					</h:inputText>
+					<p:message for="j_username" id="messageEmail" />
 
-		<ui:define name="titulo">
-				<p:outputPanel>Login</p:outputPanel>
-		</ui:define>
+                    <h:outputLabel for="j_password" value="Senha: * " />
+                    <h:inputSecret id="j_password" required="true" />
+					<p:message for="j_password" id="messageSenha" />
+					
+                    <h:commandButton value="Login" />
+                </h:panelGrid>
 
-		<ui:define name="conteudo">
-		
-			<p:messages globalOnly="true" />
-		
-			<h:form id="login">
-				<p:fieldset legend="Login">
-					<h:panelGrid columns="3">
-
-						<p:outputLabel value="Email:" for="email" />
-						<p:inputText id="email" value="#{loginBean.usuario.email}" required="true">
-							<f:passThroughAttribute name="type" value="email" />
-						</p:inputText>
-						<p:message for="email" id="messageEmail" />
-						
-						<p:outputLabel value="Senha:" for="senha" />
-						<p:password id="senha" value="#{loginBean.usuario.senha}" feedback="true"  required="true" />
-						<p:message for="senha" id="messageSenha" />
-
-						<p:commandButton value="Efetue Login" action="#{loginBean.efetuaLogin}" update="@form" process="@form" />
-					</h:panelGrid>
-				</p:fieldset>
-			</h:form>
-		</ui:define>
-
-	</ui:composition>
-
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+           
+		</form>
+        </p:dialog>
+    </h:body>
 </html>

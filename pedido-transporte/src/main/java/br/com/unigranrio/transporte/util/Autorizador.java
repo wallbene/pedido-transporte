@@ -6,6 +6,7 @@ import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 
+import br.com.unigranrio.transporte.modelo.Administrador;
 import br.com.unigranrio.transporte.modelo.Usuario;
 
 public class Autorizador implements PhaseListener {
@@ -26,10 +27,15 @@ public class Autorizador implements PhaseListener {
 
 		Usuario usuarioLogado = (Usuario) context.getExternalContext()
 				.getSessionMap().get("usuarioLogado");
+		Administrador adminLogado = (Administrador) context.getExternalContext()
+				.getSessionMap().get("adminLogado");
 
-		if (usuarioLogado != null) {
+		if(usuarioLogado != null) {
 			return;
 		}
+		 if(adminLogado != null){
+			 return;
+		 }
 
 		// redirecionamento para login.xhtml
 

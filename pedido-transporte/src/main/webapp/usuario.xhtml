@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="_templateAdmin.xhtml">
+
+	<!-- <f:metadata>
+		<f:viewParam name="usuarioId" value="#{usuarioBean.usuarioId}" />
+		<f:viewAction action="#{usuarioBean.carregarUsuarioPelaId}"
+			if="#{param.usuarioId != null}" />
+	</f:metadata> -->
+
+	<ui:define name="conteudo">
+
+		<h:form id="usuario">
+			<p:fieldset legend="Dados do Usuario">
+				<h:panelGrid columns="3" cellpadding="5">
+
+					<p:outputLabel value="Nome:" for="nome" />
+					<p:inputText id="nome" value="#{usuarioBean.usuario.nome}"
+						required="true">
+						<f:validateLength minimum="5" />
+						<f:ajax event="blur" render="messageNome" />
+					</p:inputText>
+					<p:message for="nome" id="messageNome" />
+
+					<p:outputLabel value="Email:" for="email" />
+					<p:inputText id="email" value="#{usuarioBean.usuario.email}"
+						placeholder="fulano@email.com" type="email" required="true"
+						validatorMessage="Email inválido">
+						<f:validateRegex
+							pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+						<f:ajax event="blur" render="messageEmail" />
+					</p:inputText>
+					<p:message for="email" id="messageEmail" />
+
+					<p:outputLabel value="Senha:" for="senha" />
+					<p:password id="senha" value="#{usuarioBean.usuario.senha}"
+						required="true" feedback="true" promptLabel="Digite uma senha"
+						weakLabel="Fraco" goodLabel="Boa" strongLabel="Forte">
+						<f:validateLength minimum="5" match="confirmaSenha" />
+						<f:ajax event="blur" render="messageSenha" />
+					</p:password>
+					<p:message for="senha" id="messageSenha" />
+
+					<p:outputLabel value="Confirma senha:" for="confirmaSenha" />
+					<p:password id="confirmaSenha" value="#{usuarioBean.usuario.senha}"
+						required="true">
+						<f:ajax event="blur" render="messageConfirmaSenha" />
+					</p:password>
+					<p:message for="confirmaSenha" id="messageConfirmaSenha" />
+
+					<p:outputLabel value="CPF:" for="cpf" />
+					<p:inputMask id="cpf" value="#{usuarioBean.usuario.cpf}"
+						mask="999.999.999-99">
+						<f:ajax event="blur" render="messageCpf" />
+					</p:inputMask>
+					<p:message for="cpf" id="messageCpf" />
+
+					<p:outputLabel value="Data de Nascimento:" for="dataNascimento" />
+					<p:calendar id="dataNascimento"
+						value="#{usuarioBean.usuario.dataNascimento.time}"
+						timeZone="America/Sao_Paulo" pattern="dd/MM/yyyy" mask="true"
+						showOn="button" />
+
+					<br />
+					<p:outputLabel value="Telefone:" for="telefone" />
+					<p:inputMask id="telefone" value="#{usuarioBean.usuario.telefone}"
+						mask="(99)99999-9999">
+						<f:passThroughAttribute name="type" value="tel" />
+					</p:inputMask>
+					<p:message for="telefone" id="messageTelefone" />
+					<p:commandButton value="Gravar" action="#{usuarioBean.gravar}"
+						process="@form" update="@form :formTabelaUsuarios" />
+
+				</h:panelGrid>
+			</p:fieldset>
+		</h:form>
+
+	<h:form id="formTabelaUsuarios">
+		<p:dataTable value="#{usuarioBean.usuarios}" var="usuario"
+			 paginator="true" rows="10"
+			emptyMessage="Nenhum Usuario" reflow="true">
+
+			<f:facet name="header">Usuários cadastrados</f:facet>
+			<p:column headerText="Nome" sortBy="#{usuario.nome}"
+				filterBy="#{usuario.nome}" filterMatchMode="startsWith">
+				<h:outputText value="#{usuario.nome}" />
+			</p:column>
+
+			<p:column headerText="Email">
+				<h:outputText value="#{usuario.email}" />
+			</p:column>
+
+			<p:column headerText="CPF">
+				<h:outputText value="#{usuario.cpf}" />
+			</p:column>
+
+			<p:column headerText="Telefone">
+				<h:outputText value="#{usuario.telefone}" />
+			</p:column>
+
+			<p:column headerText="Data de nascimento">
+				<h:outputText value="#{usuario.dataNascimento.time}">
+					<f:convertDateTime pattern="dd/MM/yyyy"
+						timeZone="America/Sao_Paulo" />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Alterar">
+				<p:commandButton icon="fa fa-fw fa-edit" process="@this"
+					update=":usuario">
+					<f:setPropertyActionListener value="#{usuario}"
+						target="#{usuarioBean.usuario}" />
+				</p:commandButton>
+			</p:column>
+
+
+			<p:column headerText="Excluir">
+				<p:commandButton icon="fa fa-fw fa-remove"
+					actionListener="#{usuarioBean.remover(usuario)}" process="@this"
+					update="@form">
+					<p:confirm header="Confirmação"
+						message="Deseja remover este cadastro de usuário?"
+						icon="ui-icon-alert" />
+				</p:commandButton>
+			</p:column>
+
+		</p:dataTable>
+
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+			<p:commandButton value="Sim" type="button"
+				styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+			<p:commandButton value="Não" type="button"
+				styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+		</p:confirmDialog>
+		</h:form>
+		</ui:define>
+		
+</ui:composition>
+
+</html>

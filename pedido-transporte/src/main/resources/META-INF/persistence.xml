@@ -5,23 +5,46 @@
 	version="2.0">
 
 	<persistence-unit name="transporte" transaction-type="RESOURCE_LOCAL">
-		
-		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+		<class>br.com.unigranrio.transporte.modelo.Administrador</class>
+		<class>br.com.unigranrio.transporte.modelo.Destino</class>
+		<class>br.com.unigranrio.transporte.modelo.Motorista</class>
+		<class>br.com.unigranrio.transporte.modelo.Pedido</class>
 		<class>br.com.unigranrio.transporte.modelo.Usuario</class>
-		<class>br.com.unigranrio.transporte.modelo.Livro</class>
-		<class>br.com.unigranrio.transporte.modelo.Autor</class>
-		<class>br.com.unigranrio.transporte.modelo.Venda</class>
+		<class>br.com.unigranrio.transporte.modelo.Veiculo</class>
 
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
-			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/livrariadb" />
+			<property name="javax.persistence.jdbc.url"
+				value="jdbc:mysql://localhost/transportedb?useSSL=false" />
 			<property name="javax.persistence.jdbc.user" value="root" />
 			<property name="javax.persistence.jdbc.password" value="marciane" />
+			<property name="hibernate.connection.verifyServerCertificate"
+				value="false" />
+			<property name="hibernate.connection.requireSSL" value="false" />
+
+			<!-- Ativa o cache de segundo nível e de query 
+			<property name="hibernate.cache.use_second_level_cache" value="true"/>
+			<property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory" />
+				-->
+
+			<!-- habilita o c3p0 como provdider de Pool de Conexão e configura -->
+			<property name="hibernate.connection.provider"
+				value="org.hibernate.connection.C3P0ConnectionProvider" />
+			<property name="hibernate.c3p0.min_size" value="5" />
+			<property name="hibernate.c3p0.max_size" value="20" />
+			<property name="hibernate.c3p0.timeout" value="180" />
 
 			<property name="hibernate.hbm2ddl.auto" value="update" />
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
+
+			<!-- Ativa a coleta de estatísticas, para verificarmos o funcionamento 
+				do cache. Em produção desligue essa opção 
+			<property name="hibernate.generate_statistics" value="false" />
+			-->
 		</properties>
 	</persistence-unit>
 

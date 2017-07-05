@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="_templateUser.xhtml">
+
+	<!-- <f:metadata>
+			<f:viewParam name="livroId" value="#{livroBean.livro.id}" />
+			<f:viewAction action="#{livroBean.carregarLivroPelaId}" if="#{param.livroId != null}" />
+		</f:metadata> -->
+
+	<ui:define name="titulo">
+		<p:outputPanel>Novo Pedido</p:outputPanel>
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<h:form id="formPedido">
+			<p:messages id="messages" />
+
+			<p:fieldset legend="Dados do Pedido">
+				<h:panelGrid columns="2">
+
+					<p:outputLabel value="Data e hora de Saída:" for="dataInicial" />
+					<p:calendar id="dataInicial"
+						value="#{pedidoBean.pedido.dataInicial.time}"
+						timeZone="America/Sao_Paulo" pattern="dd/MM/yyyy hh:mm"
+						mask="true" required="true" />
+
+					<p:outputLabel value="Data e hora de Retorno:" for="dataFinal" />
+					<p:calendar id="dataFinal"
+						value="#{pedidoBean.pedido.dataFinal.time}"
+						timeZone="America/Sao_Paulo" pattern="dd/MM/yyyy hh:mm"
+						mask="true" required="true" />
+
+					<p:outputLabel value="Tipo de Transporte:" for="tipoTransporte" />
+					<h:selectOneMenu id="tipoTransporte"
+						value="#{pedidoBean.pedido.tipoTransporte}">
+						<f:selectItems value="#{pedidoBean.tiposDeTransporte}" var="tipo"
+							itemLabel="#{tipo.label}" itemValue="#{tipo}" />
+					</h:selectOneMenu>
+
+					<p:outputLabel value="Quantidade de passageiros"
+						for="qtdPassageiro" />
+					<p:inputText id="qtdPassageiro" type="number"
+						value="#{pedidoBean.pedido.qtdPassageiros}" required="true">
+						<f:passThroughAttribute name="min" value="1"></f:passThroughAttribute>
+						<f:passThroughAttribute name="max" value="80"></f:passThroughAttribute>
+						<f:validateLength minimum="1" maximum="2" />
+						<f:ajax event="blur" render="messagePassageiros" />
+					</p:inputText>
+
+					<p:outputLabel value="Observações do pedido:" for="obs" />
+					<p:inputTextarea id="obs"
+						placeholder="Pode acrescentar mais informações ao pedido"
+						rows="10" cols="50" counter="display" maxlength="750"
+						counterTemplate="{0} caracteres restantes."
+						value="#{pedidoBean.pedido.observacao}" autoResize="true" />
+					<h:outputText id="display" />
+
+					<p:dataList value="#{pedidoBean.destinosDoPedido}" var="destino"
+						type="ordered" id="tabelaDestinos" emptyMessage="Nenhum Destino">
+						<f:facet name="header">Destinos</f:facet>
+						<p:column>
+							<h:outputText value="#{destino.logradouro} " />
+						</p:column>
+						<p:column>
+							<p:commandButton icon="fa fa-fw fa-trash-o"
+								action="#{pedidoBean.removerDestino(destino)}"
+								update="tabelaDestinos" process="@this" />
+						</p:column>
+					</p:dataList>
+
+				</h:panelGrid>
+			</p:fieldset>
+
+			<p:commandButton value="Novo Destino" icon="fa fa-fw fa-eye"
+				oncomplete="PF('dlgNovoDestino').show()" title="New"
+				update="formDestino" />
+			<p:dialog header="Novo Destino" widgetVar="dlgNovoDestino"
+				modal="true" showEffect="fade" hideEffect="fade" resizable="false"
+				appendTo="@(body)">
+				<p:outputPanel id="formDestino">
+					<h:panelGrid columns="3">
+
+						<p:outputLabel value="Logradouro:" for="logradouro" />
+						<p:inputText id="logradouro"
+							value="#{pedidoBean.destino.logradouro}" required="true">
+							<f:validateLength minimum="1" />
+							<f:ajax event="blur" render="messageLogradouro" />
+						</p:inputText>
+						<p:message for="logradouro" id="messageLogradouro" />
+
+						<p:outputLabel value="Complemento:" for="complemento" />
+						<p:inputText id="complemento"
+							value="#{pedidoBean.destino.complemento}" required="true">
+							<f:validateLength minimum="1" />
+							<f:ajax event="blur" render="messageComplemento" />
+						</p:inputText>
+						<p:message for="complemento" id="messageComplemento" />
+
+						<p:outputLabel value="Cidade:" for="cidade" />
+						<p:inputText id="cidade" value="#{pedidoBean.destino.cidade}"
+							required="true">
+							<f:validateLength minimum="1" />
+							<f:ajax event="blur" render="messageCidade" />
+						</p:inputText>
+						<p:message for="cidade" id="messageCidade" />
+
+						<p:outputLabel value="Cep:" for="cep" />
+						<p:inputMask id="cep" value="#{pedidoBean.destino.cep}"
+							required="true" mask="99999-999">
+							<f:validateLength minimum="1" />
+							<f:ajax event="blur" render="messageCep" />
+						</p:inputMask>
+						<p:message for="cep" id="messageCep" />
+
+
+						<p:outputLabel value="UF:" for="uf" />
+						<h:selectOneMenu id="uf" value="#{pedidoBean.destino.uf}">
+							<f:selectItems value="#{pedidoBean.estados}" var="estado"
+								itemLabel="#{estado}" itemValue="#{estado}" />
+						</h:selectOneMenu>
+						<br/>
+
+						<p:outputLabel value="Descrição do destino:" for="descricao" />
+						<p:inputTextarea id="descricao"
+							placeholder="Pode acrescentar mais referente ao destino"
+							rows="10" cols="50" counter="displayDestino" maxlength="750"
+							counterTemplate="{0} caracteres restantes."
+							value="#{pedidoBean.destino.descricao}" autoResize="true" />
+						<h:outputText id="displayDestino" />
+
+						<p:commandButton value="adicionar Destino"
+							action="#{pedidoBean.adicionarDestino}"
+							update=":formPedido:tabelaDestinos  formDestino"
+							process="formDestino @this" partialSubmit="true"
+							onclick="PF('dlgNovoDestino').hide();" />
+					</h:panelGrid>
+				</p:outputPanel>
+			</p:dialog>
+
+
+			<br />
+			<p:fieldset style="text-align:center;">
+				<p:commandButton value="Efetuar pedido"
+					action="#{pedidoBean.efetuarPedido}" process="@form" update="@form" />
+			</p:fieldset>
+
+
+		</h:form>
+
+	</ui:define>
+</ui:composition>
+
+</html>
