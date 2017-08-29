@@ -20,7 +20,7 @@
 			<property name="javax.persistence.jdbc.url"
 				value="jdbc:mysql://localhost/transportedb?useSSL=false" />
 			<property name="javax.persistence.jdbc.user" value="root" />
-			<property name="javax.persistence.jdbc.password" value="marciane" />
+			<property name="javax.persistence.jdbc.password" value="" />
 			<property name="hibernate.connection.verifyServerCertificate"
 				value="false" />
 			<property name="hibernate.connection.requireSSL" value="false" />
